@@ -10,14 +10,14 @@
          description: 'Github OAUTH token'
          regex: '^[a-z]([a-z]|[0-9]|[-|_|\.])+$'
          msg: 'Invalid token'
-   logrotate:
+   build-discarder:
      daysToKeep: 1
      numToKeep: 3
      artifactDaysToKeep: -1
      artifactNumToKeep: -1
    properties:
      - delivery-pipeline:
-         stage: Source control
+         stage: Setup infrastructure
          task: 'Create git repository'
      - build-blocker:
          use-build-blocker: true
@@ -33,5 +33,52 @@
           set -e
           echo "Creating git repository"
           # For organizations, use /orgs/:org/repos instead of /user/repos
-          curl -X POST -H "Authorization: token $OAUTH_TOKEN" -H "Accept: application/vnd.github.v3+json" https://api.github.com/user/repos -d "{ \"name\": \"$SERVICE_NAME\" }"
-          echo "Successfully created git repository"
+          RES=$(curl -X POST --silent -H "Authorization: token $OAUTH_TOKEN" -H "Accept: application/vnd.github.v3+json" https://api.github.com/user/repos -d "{ \"name\": \"$SERVICE_NAME\" }")
+          GIT_URL=$(echo "$RES" | python -m json.tool | grep clone_url | awk '{ print $2 }' | sed 's/"//g' | sed 's/,//g')
+          echo "Successfully created git repository: $GIT_URL"
+          echo "SERVICE_NAME=$SERVICE_NAME" >> .ci_version${BUILD_NUMBER}
+          echo "GIT_URL=$GIT_URL" >> .ci_versions${BUILD_NUMBER}
+     - inject:
+          properties-file: .ci_version${BUILD_NUMBER}
+   publishers:
+     - trigger-parameterized-builds:
+       - project: create-service-pipeline
+         property-file: .ci_version${BUILD_NUMBER}
+
+- job:
+   name: create-service-pipeline
+   parameters:
+     - string:
+         name: 'SERVICE_NAME'
+         description: 'Name of the new microservice'
+         default: 'example-service'
+     - string:
+         name: 'GIT_URL'
+         description: 'Source code repository URL'
+   build-discarder:
+     daysToKeep: 1
+     numToKeep: 3
+     artifactDaysToKeep: -1
+     artifactNumToKeep: -1
+   properties:
+     - delivery-pipeline:
+         stage: Setup infrastructure
+         task: 'Generate service pipeline'
+     - build-blocker:
+         use-build-blocker: true
+         blocking-jobs:
+           - "create-service-pipeline"
+   scm:
+     - git:
+         url: ${GIT_URL}
+         branches:
+           - origin/master
+   wrappers:
+     - timestamps
+     - workspace-cleanup
+     - inject-passwords:
+         mask-password-params: true
+   builders:
+     - shell: |
+          set -e
+          echo "Generate pipeline"
