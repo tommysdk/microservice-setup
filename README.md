@@ -16,7 +16,7 @@ docker exec jjb cat /var/jenkins_home/secrets/initialAdminPassword
 
 Setup Jenkins Job Builder by running:
 ```
-sed "s/PASSWORD/$(docker exec jjb cat /var/jenkins_home/secrets/initialAdminPassword)/" jenkins/jenkins_jobs.ini
+sed "s/PASSWORD/$(docker exec jjb cat /var/jenkins_home/secrets/initialAdminPassword)/" jenkins/jenkins_jobs.ini.template > jenkins/jenkins_jobs.ini
 ```
 
 Seed Jenkins with the necessary job configurations:
