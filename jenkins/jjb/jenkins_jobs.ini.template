@@ -2,6 +2,6 @@
 allow_duplicates=True
 
 [jenkins]
-user=jenkins
+user=admin
 password=PASSWORD
 url=http://localhost:8080
