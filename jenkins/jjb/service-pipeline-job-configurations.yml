@@ -5,7 +5,11 @@
      numToKeep: 3
      artifactDaysToKeep: -1
      artifactNumToKeep: -1
-   #scm
+   scm:
+     - git:
+         url: {git-url}
+         branches:
+          - origin/master
    properties:
      - delivery-pipeline:
          stage: Commit stage
