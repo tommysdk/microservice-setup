@@ -1,5 +1,5 @@
 - job:
-   name: builder-{service-name}
+   name: build-{service-name}
    logrotate:
      daysToKeep: 1
      numToKeep: 3
@@ -23,6 +23,6 @@
      - workspace-cleanup
    builders:
      - shell: |
-          set -e
-          echo "Compile, unit test and produce artifact"
-          mvn package
+         set -e
+         echo "Compile, unit test and produce artifact"
+         mvn package
