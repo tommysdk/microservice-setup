@@ -1,15 +1,13 @@
 - job:
    name: create-git-repo
    parameters:
-     - validating-string:
+     - string:
          name: 'SERVICE_NAME'
          description: 'Name of the new microservice'
-         regex: '^[a-z]([a-z]|[0-9]|[-])+$'
-         msg: 'Invalid name'
          default: 'example-service'
      - password:
-         name: 'OATH_TOKEN'
-         description: 'Github OATH token'
+         name: 'OAUTH_TOKEN'
+         description: 'Github OAUTH token'
          regex: '^[a-z]([a-z]|[0-9]|[-|_|\.])+$'
          msg: 'Invalid token'
    logrotate:
@@ -35,5 +33,5 @@
           set -e
           echo "Creating git repository"
           # For organizations, use /orgs/:org/repos instead of /user/repos
-          curl -X POST -H "Authorization: token $OATH_TOKEN" -H "Accept: application/vnd.github.v3+json" https://api.github.com/user/repos -d '{ "name": "$SERVICE_NAME" }'
+          curl -X POST -H "Authorization: token $OAUTH_TOKEN" -H "Accept: application/vnd.github.v3+json" https://api.github.com/user/repos -d "{ \"name\": \"$SERVICE_NAME\" }"
           echo "Successfully created git repository"
