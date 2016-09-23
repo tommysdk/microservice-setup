@@ -1,0 +1,24 @@
+- job:
+   name: builder-{service-name}
+   logrotate:
+     daysToKeep: 1
+     numToKeep: 3
+     artifactDaysToKeep: -1
+     artifactNumToKeep: -1
+   #scm
+   properties:
+     - delivery-pipeline:
+         stage: Commit stage
+         task: 'Build'
+     - build-blocker:
+         use-build-blocker: true
+         blocking-jobs:
+           - "builder-{service-name}"
+   wrappers:
+     - timestamps
+     - workspace-cleanup
+   builders:
+     - shell: |
+          set -e
+          echo "Compile, unit test and produce artifact"
+          mvn package
