@@ -10,6 +10,10 @@
          description: 'Github OAUTH token'
          regex: '^[a-z]([a-z]|[0-9]|[-|_|\.])+$'
          msg: 'Invalid token'
+     - string:
+         name: 'JOB_CONFIG_PATH'
+         description: 'Path to Jenkins Job Builder job configuration templates'
+         default: '/etc/jenkins_jobs'
    build-discarder:
      daysToKeep: 1
      numToKeep: 3
@@ -38,6 +42,7 @@
           echo "Successfully created git repository: $GIT_URL"
           echo "SERVICE_NAME=$SERVICE_NAME" >> .ci_version${BUILD_NUMBER}
           echo "GIT_URL=$GIT_URL" >> .ci_versions${BUILD_NUMBER}
+          echo "JOB_CONFIG_PATH=$JOB_CONFIG_PATH" >> .ci_versions${BUILD_NUMBER}
      - inject:
           properties-file: .ci_version${BUILD_NUMBER}
    publishers:
@@ -55,6 +60,10 @@
      - string:
          name: 'GIT_URL'
          description: 'Source code repository URL'
+     - string:
+         name: 'JOB_CONFIG_PATH'
+         description: 'Path to Jenkins Job Builder job configuration templates'
+         default: '/etc/jenkins_jobs'
    build-discarder:
      daysToKeep: 1
      numToKeep: 3
@@ -68,11 +77,6 @@
          use-build-blocker: true
          blocking-jobs:
            - "create-service-pipeline"
-   scm:
-     - git:
-         url: ${GIT_URL}
-         branches:
-           - origin/master
    wrappers:
      - timestamps
      - workspace-cleanup
@@ -81,4 +85,10 @@
    builders:
      - shell: |
           set -e
-          echo "Generate pipeline"
+          echo "Generate pipeline for $SERVICE_NAME"
+          SERVICE_NAME=$SERVICE_NAME
+          GIT_URL=$GIT_URL
+          JOB_CONFIG_PATH=$JOB_CONFIG_PATH
+          
+          cat ${JOB_CONFIG_PATH}/service-pipeline-job-configurations.yml.template | sed "s;{service-name};${SERVICE_NAME};g" | sed "s;{git-url};${GIT_URL};g" > ${JOB_CONFIG_PATH}/${SERVICE_NAME}-pipeline-job-configurations.yml
+          jenkins-jobs update ${JOB_CONFIG_PATH}/${SERVICE-NAME}-pipeline-job-configurations.yml
