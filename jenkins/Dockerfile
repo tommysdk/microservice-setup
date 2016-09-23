@@ -5,5 +5,3 @@ USER root
 RUN apt-get update && apt-get install -y php5-mcrypt python-pip
 RUN pip install PyYAML python-jenkins jenkins-job-builder
 USER jenkins
-COPY ./bootstrap-jenkins /
-ENTRYPOINT ["/bootstrap-jenkins.sh"]
