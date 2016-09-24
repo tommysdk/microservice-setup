@@ -6,7 +6,7 @@ To make it easy to get started with this project, we provide the option to run J
 Build and run
 ```
 docker build -t jjb jenkins/
-docker run -d -v $PWD/jenkins/jjb:/etc/jenkins_jobs -v ~/.aws:/var/jenkins_home/.aws -p 8080:8080 --name jjb jjb
+docker run -d -v $PWD/jenkins/jjb:/etc/jenkins_jobs -v ~/.aws:/var/jenkins_home/.aws -v ~/.m2:/var/jenkins_home/.m2 -p 8080:8080 --name jjb jjb
 ```
 
 Browse to: http://localhost:8080 and complete the Jenkins install procedure using the recommended plugin setup
@@ -24,3 +24,6 @@ Seed Jenkins with the necessary job configurations:
 ```
 docker exec jjb jenkins-jobs update /etc/jenkins_jobs/job-configurations.yml
 ```
+
+## Create a new microservice
+Run the Jenkins job: create-git-repo
