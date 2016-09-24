@@ -28,3 +28,39 @@
          git clone $GIT_URL
          echo "Compile, unit test and produce artifact"
          mvn package
+
+
+- job:
+   name: deploy-{service-name}
+   logrotate:
+     daysToKeep: 1
+     numToKeep: 3
+     artifactDaysToKeep: -1
+     artifactNumToKeep: -1
+   scm:
+     - git:
+         url: {git-url}
+         branches:
+          - origin/master
+   properties:
+     - delivery-pipeline:
+         stage: Deploy
+         task: 'Deploy to AWS'
+     - build-blocker:
+         use-build-blocker: true
+         blocking-jobs:
+           - "deploy-{service-name}"
+   wrappers:
+     - timestamps
+     - workspace-cleanup
+   builders:
+     - shell: |
+         set -e
+         echo "Deploy application to AWS"
+         BUCKET_NAME=$(uuidgen | awk '{print tolower($0)}')
+         SERVICE_NAME={service-name}
+         ARTIFACT_NAME=${SERVICE_NAME%-*}-0.0.1.jar
+         aws s3api create-bucket --create-bucket-configuration LocationConstraint=eu-west-1 --bucket $BUCKET_NAME --output text
+         aws s3 cp target/$ARTIFACT_NAME s3://3bd574e6-bda8-419e-b1db-9ceecfc9f841
+         aws elasticbeanstalk create-application-version --application-name $SERVICE_NAME --auto-create-application --version-label v1 --source-bundle S3Bucket=$BUCKET_NAME,S3Key=$ARTIFACT_NAME
+
