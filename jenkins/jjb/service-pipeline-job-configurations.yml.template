@@ -24,5 +24,7 @@
    builders:
      - shell: |
          set -e
+         GIT_URL={git-url}
+         git clone $GIT_URL
          echo "Compile, unit test and produce artifact"
          mvn package

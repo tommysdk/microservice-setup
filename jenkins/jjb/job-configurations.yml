@@ -48,7 +48,8 @@
         git config --global user.email "jenkins@jenkins.com"
         git config --global user.name "Jenkins"
         echo "Successfully created git repository: $GIT_URL"
-        mvn archetype:generate -DarchetypeGroupId=io.dropwizard.archetypes -DarchetypeArtifactId=java-simple -DarchetypeVersion=1.0.1 -DgroupId=com.example -DartifactId=$SERVICE_NAME -Dversion=0.0.1 -Dname=$SERVICE_NAME -DinteractiveMode=false
+        APPLICATION_NAME=${SERVICE_NAME%-*}
+        mvn archetype:generate -DarchetypeGroupId=io.dropwizard.archetypes -DarchetypeArtifactId=java-simple -DarchetypeVersion=1.0.1 -DgroupId=com.example -DartifactId=$SERVICE_NAME -Dversion=0.0.1 -Dname=$APPLICATION_NAME -DinteractiveMode=false
         cd $SERVICE_NAME
         git init .
         git add --all
