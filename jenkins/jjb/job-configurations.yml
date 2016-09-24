@@ -34,13 +34,28 @@
          mask-password-params: true
    builders:
      - shell: |
-          set -e
-          echo "Creating git repository"
-          # For organizations, use /orgs/:org/repos instead of /user/repos
-          RES=$(curl -X POST --silent -H "Authorization: token $OAUTH_TOKEN" -H "Accept: application/vnd.github.v3+json" https://api.github.com/user/repos -d "{ \"name\": \"$SERVICE_NAME\" }")
-          GIT_URL=$(echo "$RES" | python -m json.tool | grep clone_url | awk '{ print $2 }' | sed 's/"//g' | sed 's/,//g')
-          echo "Successfully created git repository: $GIT_URL"
-
-          echo "Generate pipeline for $SERVICE_NAME"          
-          cat ${JOB_CONFIG_PATH}/service-pipeline-job-configurations.yml.template | sed "s;{service-name};${SERVICE_NAME};g" | sed "s;{git-url};${GIT_URL};g" > ${JOB_CONFIG_PATH}/${SERVICE_NAME}-pipeline-job-configurations.yml
-          jenkins-jobs update ${JOB_CONFIG_PATH}/${SERVICE_NAME}-pipeline-job-configurations.yml
+        #!/bin/bash
+        set -e
+        echo "Creating git repository"
+        # For organizations, use /orgs/:org/repos instead of /user/repos
+        RES=$(curl -X POST -H "Authorization: token $OAUTH_TOKEN" -H "Accept: application/vnd.github.v3+json" https://api.github.com/user/repos -d "{ \"name\": \"$SERVICE_NAME\" }")
+        echo $RES
+        GIT_URL=$(echo "$RES" | python -m json.tool | grep clone_url | awk '{ print $2 }' | sed 's/"//g' | sed 's/,//g')
+        if [ -z $GIT_URL ]; then
+             echo "Failed to create git repo"
+             exit 1
+        fi
+        git config --global user.email "jenkins@jenkins.com"
+        git config --global user.name "Jenkins"
+        echo "Successfully created git repository: $GIT_URL"
+        mvn archetype:generate -DarchetypeGroupId=io.dropwizard.archetypes -DarchetypeArtifactId=java-simple -DarchetypeVersion=1.0.1 -DgroupId=com.example -DartifactId=$SERVICE_NAME -Dversion=0.0.1 -Dname=$SERVICE_NAME -DinteractiveMode=false
+        cd $SERVICE_NAME
+        git init .
+        git add --all
+        git commit -m "Initial commit"
+        ORIGIN=$(echo ${GIT_URL} | sed "s;github.com;${OAUTH_TOKEN}@github.com;g")
+        git remote add origin $ORIGIN
+        git push origin master
+        echo "Generate pipeline for $SERVICE_NAME"
+        cat ${JOB_CONFIG_PATH}/service-pipeline-job-configurations.yml.template | sed "s;{service-name};${SERVICE_NAME};g" | sed "s;{git-url};${GIT_URL};g" > ${JOB_CONFIG_PATH}/${SERVICE_NAME}-pipeline-job-configurations.yml
+        jenkins-jobs update ${JOB_CONFIG_PATH}/${SERVICE_NAME}-pipeline-job-configurations.yml
