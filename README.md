@@ -24,3 +24,6 @@ Seed Jenkins with the necessary job configurations:
 ```
 docker exec jjb jenkins-jobs update /etc/jenkins_jobs/job-configurations.yml
 ```
+
+## Create a new microservice
+Run the Jenkins job: create-git-repo
