@@ -32,7 +32,7 @@
          echo "Compile, unit test and produce artifact"
          mvn package
 
-         BUCKET_NAME=diabol-hackathon-2016-{service-name}-$(date +%Y%m%d%H%M%S)
+         BUCKET_NAME=microservice-artifact-repository-{service-name}
          SERVICE_NAME={service-name}
          ARTIFACT_NAME=${SERVICE_NAME}-0.0.1.jar
          aws s3api create-bucket --create-bucket-configuration LocationConstraint=eu-west-1 --bucket $BUCKET_NAME --output text
