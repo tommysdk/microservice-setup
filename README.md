@@ -6,7 +6,7 @@ To make it easy to get started with this project, we provide the option to run J
 Build and run
 ```
 docker build -t jjb jenkins/
-docker run -d -v $PWD/jjb:/etc/jenkins_jobs -p 8080:8080 --name jjb jjb
+docker run -d -v $PWD/jenkins/jjb:/etc/jenkins_jobs -v ~/.aws/credentials:/var/jenkins/home/.aws/credentials -p 8080:8080 --name jjb jjb
 ```
 
 Browse to: http://localhost:8080 and complete the Jenkins install procedure using the recommended plugin setup
