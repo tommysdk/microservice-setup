@@ -34,7 +34,7 @@
 
          BUCKET_NAME=diabol-hackathon-2016-{service-name}-$(date +%Y%m%d%H%M%S)
          SERVICE_NAME={service-name}
-         ARTIFACT_NAME=${SERVICE_NAME%-*}-0.0.1.jar
+         ARTIFACT_NAME=${SERVICE_NAME}-0.0.1.jar
          aws s3api create-bucket --create-bucket-configuration LocationConstraint=eu-west-1 --bucket $BUCKET_NAME --output text
          aws s3 cp target/$ARTIFACT_NAME s3://$BUCKET_NAME
          aws elasticbeanstalk create-application-version --application-name $SERVICE_NAME --auto-create-application --version-label v1 --source-bundle S3Bucket=$BUCKET_NAME,S3Key=$ARTIFACT_NAME
