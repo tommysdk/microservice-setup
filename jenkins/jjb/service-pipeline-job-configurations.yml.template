@@ -25,11 +25,12 @@
      - shell: |
          set -e
          GIT_URL={git-url}
+         rm -rf src
          git clone $GIT_URL src
          cd src
          echo "Compile, unit test and produce artifact"
          mvn package
-         
+
          BUCKET_NAME=$(uuidgen | awk '{print tolower($0)}')
          SERVICE_NAME={service-name}
          ARTIFACT_NAME=${SERVICE_NAME%-*}-0.0.1.jar
