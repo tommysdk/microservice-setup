@@ -23,6 +23,7 @@
      - workspace-cleanup
    builders:
      - shell: |
+         #/bin/bash
          set -e
          GIT_URL={git-url}
          rm -rf src
