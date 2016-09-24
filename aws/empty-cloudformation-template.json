@@ -1,0 +1,58 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Base stack for services",
+  "Parameters": {
+    "EnvironmentQualifier": {
+      "Description": "The environment qualifier, Example: production",
+      "Type": "String"
+    }
+  },
+  "Mappings": {
+    "Environments": {
+      "staging": {
+        "VpcId": "vpc-id"
+      },
+      "uat": {
+        "VpcId": "vpc-id"
+      },
+      "production": {
+        "VpcId": "vpc-id"
+      }
+    }
+  },
+  "Resources": {
+    "PlaceholderSecurityGroup": {
+      "Properties": {
+        "GroupDescription": "Temporary resource",
+        "SecurityGroupEgress": [
+          {
+            "CidrIp": "0.0.0.0/0",
+            "IpProtocol": "-1"
+          }
+        ],
+        "SecurityGroupIngress": [
+          {
+            "CidrIp": "0.0.0.0/0",
+            "IpProtocol": "-1"
+          }
+        ],
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "Temporary security group"
+          }
+        ],
+        "VpcId": {
+          "Fn::FindInMap": [
+            "Environments",
+            {
+              "Ref": "EnvironmentQualifier"
+            },
+            "VpcId"
+          ]
+        }
+      },
+      "Type": "AWS::EC2::SecurityGroup"
+    }
+  }
+}

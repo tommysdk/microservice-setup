@@ -6,7 +6,7 @@ To make it easy to get started with this project, we provide the option to run J
 Build and run
 ```
 docker build -t jjb jenkins/
-docker run -d -v $PWD/jjb:/etc/jenkins_jobs -p 8080:8080 --name jjb jjb
+docker run -d -v $PWD/jenkins/jjb:/etc/jenkins_jobs -v ~/.aws:/var/jenkins_home/.aws -p 8080:8080 --name jjb jjb
 ```
 
 Browse to: http://localhost:8080 and complete the Jenkins install procedure using the recommended plugin setup
@@ -17,7 +17,7 @@ docker exec jjb cat /var/jenkins_home/secrets/initialAdminPassword
 
 Setup Jenkins Job Builder by running:
 ```
-sed "s/PASSWORD/$(docker exec jjb cat /var/jenkins_home/secrets/initialAdminPassword)/" jenkins/jenkins_jobs.ini.template > jenkins/jenkins_jobs.ini
+sed "s/PASSWORD/$(docker exec jjb cat /var/jenkins_home/secrets/initialAdminPassword)/" jenkins/jjb/jenkins_jobs.ini.template jenkins/jjb/jenkins_jobs.ini
 ```
 
 Seed Jenkins with the necessary job configurations:
